@@ -177,6 +177,7 @@ venv.bak/
 pyvenv.cfg
 pip-selfcheck.json
 .project
+data/*
 sighan2005/processed_wo_idioms/raw/*
 sighan2005/processed_wo_idioms/pro/*
 PreTrainedWordEmbedding/*
