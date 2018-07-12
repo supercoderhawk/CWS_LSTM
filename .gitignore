@@ -176,7 +176,7 @@ venv.bak/
 [Ss]cripts
 pyvenv.cfg
 pip-selfcheck.json
-
+.project
 sighan2005/processed_wo_idioms/raw/*
 sighan2005/processed_wo_idioms/pro/*
 PreTrainedWordEmbedding/*
