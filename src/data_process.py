@@ -25,6 +25,8 @@ def init_dir():
         os.mkdir(os.path.exists(training_dest_filename))
     if not os.path.exists('../PreTrainedWordEmbedding/'):
         os.mkdir('../PreTrainedWordEmbedding/')
+    if not os.path.exists('seg_result/'):
+        os.mkdir('seg_result/')
     copyfile('../data/msr_train.utf8', training_src_filename)
     copyfile('../data/msr_test.utf8', test_src_filename)
 
