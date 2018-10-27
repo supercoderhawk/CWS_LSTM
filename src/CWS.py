@@ -363,7 +363,7 @@ class CWS(object):
             print 'Saving test result for %d_th epoch' % (epoch + 1)
             sys.stdout.flush()
             suffix = '_%d' % (epoch + 1)
-            local_seg_result_file = self.seg_result_file + suffix
+            local_seg_result_file = self.seg_result_file + suffix + '.txt'
             fw = open(local_seg_result_file, 'w')
             for line in seg:
                 for word in line:
