@@ -9,6 +9,8 @@ class Data(object):
         self.rng = np.random.RandomState(random_seed)
         self.dic_c2idx = {}
         self.dic_idx2c = {}
+        self.dic_labebl2idx = dic_label
+        self.dic_idx2label = dict(zip(dic_label.values(), dic_label.keys()))
         self.wordVecLen = wordVecLen
         f = open(path_lookup_table, 'r')
         li = f.readline()
