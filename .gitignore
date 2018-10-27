@@ -178,6 +178,8 @@ pyvenv.cfg
 pip-selfcheck.json
 .project
 data/*
+models/*
 sighan2005/processed_wo_idioms/raw/*
 sighan2005/processed_wo_idioms/pro/*
 PreTrainedWordEmbedding/*
+src/seg_result
