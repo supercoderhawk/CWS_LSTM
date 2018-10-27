@@ -19,10 +19,10 @@ def init_dir():
         os.mkdir('../sighan2005/')
     if not os.path.exists('../sighan2005/processed_wo_idioms/'):
         os.mkdir('../sighan2005/processed_wo_idioms/')
-    if not os.path.exists(os.path.basename(training_src_filename)):
-        os.mkdir(os.path.basename(training_src_filename))
-    if not os.path.exists(os.path.basename(training_dest_filename)):
-        os.mkdir(os.path.exists(training_dest_filename))
+    if not os.path.exists(os.path.dirname(training_src_filename)):
+        os.mkdir(os.path.dirname(training_src_filename))
+    if not os.path.exists(os.path.dirname(training_dest_filename)):
+        os.mkdir(os.path.dirname(training_dest_filename))
     if not os.path.exists('../PreTrainedWordEmbedding/'):
         os.mkdir('../PreTrainedWordEmbedding/')
     if not os.path.exists('seg_result/'):
