@@ -1,6 +1,5 @@
 import numpy as np
 from Activation import *
-
 from collections import OrderedDict
 
 
@@ -141,13 +140,14 @@ class LSTM_HiddenLayer(object):
 
     def encode(self, x_in, flag_train_phase):
         w_scale = 1.0
-        if (self.flag_dropout == True) and (flag_train_phase == True):
+        if self.flag_dropout and flag_train_phase:
             mask = self._mask_maker(x_in)
             x_in = x_in * mask
             self.mask.append(mask)
-        elif (self.flag_dropout == True) and (flag_train_phase == False):
+        elif self.flag_dropout and flag_train_phase:
             w_scale = 1.0 - self.dropout_rate
-        if (self.flag_dropout_scaleWeight == False): w_scale = 1.0
+        if not self.flag_dropout_scaleWeight:
+            w_scale = 1.0
 
         pre_hidden = self.pre_hidden
         pre_cell = self.pre_cell
@@ -155,32 +155,36 @@ class LSTM_HiddenLayer(object):
         inside = np.dot(x_in, self.params['input_inputGate_W'] * w_scale) + \
                  np.dot(pre_hidden, self.params['hidden_inputGate_W'] * w_scale) + \
                  np.dot(pre_cell, np.diag(self.params['cell_inputGate_W'] * w_scale))
-        if (self.use_bias == True): inside += self.params['inputGate_b']
+        if self.use_bias:
+            inside += self.params['inputGate_b']
         input_gate = self.gate_activation.encode(inside)
 
         inside = np.dot(x_in, self.params['input_forgetGate_W'] * w_scale) + \
                  np.dot(pre_hidden, self.params['hidden_forgetGate_W'] * w_scale) + \
                  np.dot(pre_cell, np.diag(self.params['cell_forgetGate_W'] * w_scale))
-        if (self.use_bias == True): inside += self.params['forgetGate_b']
+        if self.use_bias:
+            inside += self.params['forgetGate_b']
         forget_gate = self.gate_activation.encode(inside)
 
         inside = np.dot(x_in, self.params['input_cell_W'] * w_scale) + \
                  np.dot(pre_hidden, self.params['hidden_cell_W'] * w_scale)
-        if (self.use_bias == True): inside += self.params['cell_b']
+        if self.use_bias:
+            inside += self.params['cell_b']
         cur_cell = forget_gate * pre_cell + \
                    input_gate * self.cell_activation.encode(inside)
 
         inside = np.dot(x_in, self.params['input_outputGate_W'] * w_scale) + \
                  np.dot(pre_hidden, self.params['hidden_outputGate_W'] * w_scale) + \
                  np.dot(cur_cell, np.diag(self.params['cell_outputGate_W'] * w_scale))
-        if (self.use_bias == True): inside += self.params['outputGate_b']
+        if self.use_bias:
+            inside += self.params['outputGate_b']
         output_gate = self.gate_activation.encode(inside)
 
         cur_hidden = output_gate * self.cell_activation.encode(cur_cell)  ###
 
         self.pre_hidden = cur_hidden
         self.pre_cell = cur_cell
-        if (flag_train_phase == True):
+        if flag_train_phase:
             self.output.append(cur_hidden)
             self.cell.append(cur_cell)
             self.input_gate.append(input_gate)
@@ -215,7 +219,8 @@ class LSTM_HiddenLayer(object):
 
         g_forget_gate = pre_cell * g_cell
         inside = np.dot(z, self.params['input_cell_W']) + np.dot(pre_hidden, self.params['hidden_cell_W'])
-        if (self.use_bias == True): inside += self.params['cell_b']
+        if self.use_bias:
+            inside += self.params['cell_b']
         hiddenlayer_output = self.cell_activation.encode(inside)
         g_input_gate = hiddenlayer_output * g_cell
         g_hiddenLayer_output = input_gate * g_cell
@@ -223,31 +228,35 @@ class LSTM_HiddenLayer(object):
         tmp = g_hiddenLayer_output * self.cell_activation.bp(hiddenlayer_output)
         g_['input_cell_W'] = z.T.dot(tmp)
         g_['hidden_cell_W'] = pre_hidden.T.dot(tmp)
-        if (self.use_bias == True): g_['cell_b'] = np.sum(tmp, axis=0)
+        if self.use_bias:
+            g_['cell_b'] = np.sum(tmp, axis=0)
         g_z = tmp.dot(self.params['input_cell_W'].T)
 
         tmp = g_output_gate * self.gate_activation.bp(output_gate)
         g_['input_outputGate_W'] = z.T.dot(tmp)
         g_['hidden_outputGate_W'] = pre_hidden.T.dot(tmp)
         g_['cell_outputGate_W'] = np.diag(cell.T.dot(tmp))
-        if (self.use_bias == True): g_['outputGate_b'] = np.sum(tmp, axis=0)
+        if self.use_bias:
+            g_['outputGate_b'] = np.sum(tmp, axis=0)
         g_z += tmp.dot(self.params['input_outputGate_W'].T)
 
         tmp = g_forget_gate * self.gate_activation.bp(forget_gate)
         g_['input_forgetGate_W'] = z.T.dot(tmp)
         g_['hidden_forgetGate_W'] = pre_hidden.T.dot(tmp)
         g_['cell_forgetGate_W'] = np.diag(pre_cell.T.dot(tmp))
-        if (self.use_bias == True): g_['forgetGate_b'] = np.sum(tmp, axis=0)
+        if self.use_bias:
+            g_['forgetGate_b'] = np.sum(tmp, axis=0)
         g_z += tmp.dot(self.params['input_forgetGate_W'].T)
 
         tmp = g_input_gate * self.gate_activation.bp(input_gate)
         g_['input_inputGate_W'] = z.T.dot(tmp)
         g_['hidden_inputGate_W'] = pre_hidden.T.dot(tmp)
         g_['cell_inputGate_W'] = np.diag(pre_cell.T.dot(tmp))
-        if (self.use_bias == True): g_['inputGate_b'] = np.sum(tmp, axis=0)
+        if self.use_bias:
+            g_['inputGate_b'] = np.sum(tmp, axis=0)
         g_z += tmp.dot(self.params['input_inputGate_W'].T)
 
-        if (cmd == 'minus'):
+        if cmd == 'minus':
             for param in g_:
                 g_[param] = -g_[param]
         self.g_ = g_
@@ -255,14 +264,15 @@ class LSTM_HiddenLayer(object):
         for param in g_:
             self.batch_grad[param] += g_[param]
 
-        if (self.flag_dropout == True):
+        if self.flag_dropout:
             # mask = np.asarray(self.mask,dtype = np.float32)
             mask = np.asarray(self.mask[:])
             return g_z * mask
         return g_z
 
     def _scale(self, param, squared_filter_length_limit):
-        if (squared_filter_length_limit == False): return param
+        if not squared_filter_length_limit:
+            return param
         col_norms = np.sqrt(np.sum(param ** 2, axis=0))
         desired_norms = np.clip(col_norms, 0, np.sqrt(squared_filter_length_limit))
         scale = desired_norms / (1e-7 + col_norms)
@@ -271,13 +281,13 @@ class LSTM_HiddenLayer(object):
     def update_w(self, n):
         for param in self.params:
             old_param = self.params[param]
-            if (old_param.ndim == 2):
+            if old_param.ndim == 2:
                 grad = self.batch_grad[param] / n + self.L2_reg * old_param
             else:
                 grad = self.batch_grad[param] / n
             tmp = self.learning_rate[param] + grad * grad
             lr = self.alpha / (np.sqrt(tmp) + 1.0e-6)
-            if (old_param.ndim == 2):
+            if old_param.ndim == 2:
                 self.params[param] = self._scale(old_param - lr * grad, self.squared_filter_length_limit)
             else:
                 self.params[param] = old_param - lr * grad

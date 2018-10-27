@@ -1,7 +1,6 @@
 import numpy as np
 from Activation import *
 
-
 class GRU_HiddenLayer(object):
     def __init__(self, alpha,
                  squared_filter_length_limit,

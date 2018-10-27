@@ -1,7 +1,6 @@
 import numpy as np
 from Activation import *
 
-
 class RNN_HiddenLayer(object):
     def __init__(self, alpha,
                  squared_filter_length_limit,
@@ -141,7 +140,7 @@ class RNN_HiddenLayer(object):
         mask = self.rng.binomial(n=1, p=1 - self.dropout_rate, size=x_in.shape)
         return mask
 
-    def encode(self, x_in, flag_train_phase):
+    def encode(self, x_in, flag_train_phase=False):
         self.batch_size = x_in.shape[0]
         w_scale = 1.0
         if (self.dropout == True) and (flag_train_phase == True):

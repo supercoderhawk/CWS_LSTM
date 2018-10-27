@@ -1,6 +1,5 @@
 import numpy as np
 from Activation import *
-
 from collections import OrderedDict
 
 
