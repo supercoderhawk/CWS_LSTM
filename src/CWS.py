@@ -1,8 +1,10 @@
 import numpy as np
 import sys
 import time
+import pickle
 from collections import OrderedDict
-from Activation import ReLU, Sigmoid, Tanh, Add_HiddenLayer
+from Activation import ReLU, Sigmoid, Tanh
+from Layer import Add_HiddenLayer
 
 
 class CWS_Layer(object):
@@ -138,7 +140,7 @@ class CWS(object):
                 continue
             for j in val[k]:
                 loss = 0.0
-                if (cur_label != j):
+                if cur_label and cur_label != j:
                     loss = self.HINGE_reg
                 if ret1[j] is None:
                     ret1[j] = dp_pre[k] + output[j] + self.params['A'][k][j] + flag * loss
@@ -170,15 +172,17 @@ class CWS(object):
                     x.append(EOSid)
                     continue
                 x.append(sentence[pos])
-
-            init_v = self.one_step(x, ans[i], init_v, flag)
+            if ans:
+                init_v = self.one_step(x, ans[i], init_v, flag)
+            else:
+                init_v = self.one_step(x, None, init_v, flag)
             result.append(init_v)
         return result
 
     def get_best(self, sentence, ans, flag):
         self.clear_layers()
         result = self.decode_fun(sentence, ans, flag)
-        sen_len = len(ans)
+        sen_len = len(sentence)
         ret = [-1 for i in xrange(sen_len)]
         Max = None
         pos = 0
@@ -335,13 +339,17 @@ class CWS(object):
                     print '50 batches proccessed'
                     print '%d done!' % end
                     print 'Training at batch %d, cost = %f' % (
-                    epoch * (batch_num + 1) + batch + 1, ae_costs / ((batch + 1) * self.batch_size))
+                        epoch * (batch_num + 1) + batch + 1, ae_costs / ((batch + 1) * self.batch_size))
                     sys.stdout.flush()
 
                 self.update_w(end - start)
 
             cur_cost = ae_costs / M
             print 'Training at epoch %d, cost = %f' % (epoch + 1, cur_cost)
+
+            with open('../models/model_{0}.pkl'.format(epoch + 1), 'wb') as f:
+                pickle.dump({'params': self.params, 'layers': self.layers}, f)
+
             if (epoch + 1) % 10 == 0:
                 self.test(self.data.data_train, self.data.label_train, "Train")
             (seg, eval_res) = self.test(self.data.data_dev, self.data.label_dev, "Dev")
